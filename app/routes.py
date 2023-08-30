@@ -1,13 +1,18 @@
+#Quelle: Miguel Grinberg (https://github.com/miguelgrinberg/microblog) Version 0.11
 from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
+from flask_restful import Api, Resource #Eigenentwicklung
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, \
-    EmptyForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm
-from app.models import User, Post
+from app.forms import CommentForm, LoginForm, RegistrationForm, EditProfileForm, \
+    EmptyForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm #Eigenentwicklung
+from app.models import User, Post, Comment #Eigenentwicklung
 from app.email import send_password_reset_email
+from app.forms import CommentForm #Eigenentwicklung
 
+
+api = Api(app) #Eigenentwicklung
 
 @app.before_request
 def before_request():
@@ -21,6 +26,7 @@ def before_request():
 @login_required
 def index():
     form = PostForm()
+    comment_form = CommentForm() #Eigenentwicklung
     if form.validate_on_submit():
         post = Post(body=form.post.data, author=current_user)
         db.session.add(post)
@@ -34,7 +40,8 @@ def index():
         if posts.has_next else None
     prev_url = url_for('index', page=posts.prev_num) \
         if posts.has_prev else None
-    return render_template('index.html', title='Home', form=form,
+#Eigenentwicklung
+    return render_template('index.html', title='Home', form=form, comment_form=comment_form,
                            posts=posts.items, next_url=next_url,
                            prev_url=prev_url)
 
@@ -49,8 +56,9 @@ def explore():
         if posts.has_next else None
     prev_url = url_for('explore', page=posts.prev_num) \
         if posts.has_prev else None
+    comment_form = CommentForm()  #Eigenentwicklung
     return render_template('index.html', title='Explore', posts=posts.items,
-                           next_url=next_url, prev_url=prev_url)
+                           next_url=next_url, prev_url=prev_url, comment_form=comment_form)  # Eigenentwicklung
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -135,8 +143,11 @@ def user(username):
     prev_url = url_for('user', username=user.username, page=posts.prev_num) \
         if posts.has_prev else None
     form = EmptyForm()
+    comment_form = CommentForm() #Eigenentwicklung
+
     return render_template('user.html', user=user, posts=posts.items,
-                           next_url=next_url, prev_url=prev_url, form=form)
+                           comment_form=comment_form, next_url=next_url, #Eigenentwicklung
+                           prev_url=prev_url, form=form)
 
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
@@ -194,3 +205,36 @@ def unfollow(username):
         return redirect(url_for('user', username=username))
     else:
         return redirect(url_for('index'))
+
+
+#Eigenentwicklung
+@app.route('/post/<int:post_id>/comment', methods=['POST'])
+@login_required
+def comment(post_id):
+    post = Post.query.get_or_404(post_id)
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = Comment(body=form.body.data, author=current_user, post=post)
+        db.session.add(comment)
+        db.session.commit()
+        flash('Your comment has been published.')
+        return redirect(url_for('index'))
+    return render_template('_post.html', post=post, form=form)
+
+
+@app.route('/post/<int:post_id>', methods=['GET'])
+@login_required
+def post(post_id):
+    post = Post.query.get_or_404(post_id)
+    comments = Comment.query.filter_by(post_id=post_id).all()
+    form = CommentForm()  
+    return render_template('_post.html', post=post, comments=comments, comment_form=form)
+
+
+class BlogPostResource(Resource):
+    def get(self, post_id):
+        post = Post.query.get_or_404(post_id)
+        return {'body': post.body}
+
+api.add_resource(BlogPostResource, '/api/post/<int:post_id>')
+#Ende Eigenentwicklung

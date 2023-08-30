@@ -1,3 +1,4 @@
+#Quelle: Miguel Grinberg (https://github.com/miguelgrinberg/microblog) Version 0.11
 from threading import Thread
 from flask import render_template
 from flask_mail import Message

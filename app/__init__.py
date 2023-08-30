@@ -1,3 +1,4 @@
+#Quelle: Miguel Grinberg (https://github.com/miguelgrinberg/microblog) Version 0.11
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os

@@ -1,3 +1,4 @@
+#Quelle: Miguel Grinberg (https://github.com/miguelgrinberg/microblog) Version 0.11
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
     TextAreaField
@@ -67,3 +68,9 @@ class EmptyForm(FlaskForm):
 class PostForm(FlaskForm):
     post = TextAreaField('Say something', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+#Eigenentwicklung
+class CommentForm(FlaskForm):
+    body = TextAreaField('Enter your comment', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+#Ende Eigenentwicklung
