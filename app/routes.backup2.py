@@ -1,6 +1,6 @@
 #Quelle: Miguel Grinberg (https://github.com/miguelgrinberg/microblog) Version 0.11
 from datetime import datetime
-from flask import render_template, flash, redirect, url_for, request #Eigenentwicklung
+from flask import render_template, flash, redirect, url_for, request, jsonify #Eigenentwicklung
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_restful import Api, Resource #Eigenentwicklung
@@ -235,8 +235,11 @@ def post(post_id):
 def verify_password(username, password):
     user = User.query.filter_by(username=username).first()
     if user and user.check_password(password):
+        print("User authenticated:", user.username)  # Debugging line
         return user
+    print("Authentication failed for:", username)  # Debugging line
     return None
+
 
 
 class BlogPostResource(Resource):
@@ -245,6 +248,23 @@ class BlogPostResource(Resource):
     def get(self, post_id):
         post = Post.query.get_or_404(post_id)
         return {'body': post.body}
+
+    @auth.login_required
+    def post(self):
+        if not current_user.is_authenticated:
+            return {'message': 'User is not authenticated'}, 401
+
+        json_data = request.get_json(force=True)
+        if not json_data:
+            return {'message': 'No input data provided'}, 400
+
+        if 'body' not in json_data:
+            return {'message': 'Missing post body'}, 400
+
+        post = Post(body=json_data['body'], author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        return {'message': 'Post created', 'post_id': post.id}, 201
 
 
 api.add_resource(BlogPostResource, '/api/post/', '/api/post/<int:post_id>')

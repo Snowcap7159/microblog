@@ -1,6 +1,6 @@
 #Quelle: Miguel Grinberg (https://github.com/miguelgrinberg/microblog) Version 0.11
 from datetime import datetime
-from flask import render_template, flash, redirect, url_for, request #Eigenentwicklung
+from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_restful import Api, Resource #Eigenentwicklung
@@ -9,9 +9,9 @@ from app.forms import CommentForm, LoginForm, RegistrationForm, EditProfileForm,
     EmptyForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm #Eigenentwicklung
 from app.models import User, Post, Comment #Eigenentwicklung
 from app.email import send_password_reset_email
-from flask_httpauth import HTTPBasicAuth #Eigenentwicklung
+from app.forms import CommentForm #Eigenentwicklung
 
-auth = HTTPBasicAuth() #Eigenentwicklung
+
 api = Api(app) #Eigenentwicklung
 
 @app.before_request
@@ -231,21 +231,10 @@ def post(post_id):
     return render_template('_post.html', post=post, comments=comments, comment_form=form)
 
 
-@auth.verify_password
-def verify_password(username, password):
-    user = User.query.filter_by(username=username).first()
-    if user and user.check_password(password):
-        return user
-    return None
-
-
 class BlogPostResource(Resource):
-
-    @auth.login_required
     def get(self, post_id):
         post = Post.query.get_or_404(post_id)
         return {'body': post.body}
 
-
-api.add_resource(BlogPostResource, '/api/post/', '/api/post/<int:post_id>')
+api.add_resource(BlogPostResource, '/api/post/<int:post_id>')
 #Ende Eigenentwicklung
