@@ -1,3 +1,4 @@
+#Quelle: Miguel Grinberg (https://github.com/miguelgrinberg/microblog) Version 0.11
 """comments table
 
 Revision ID: a68ba6ebc3c4

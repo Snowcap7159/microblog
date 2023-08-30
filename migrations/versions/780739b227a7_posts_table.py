@@ -1,3 +1,4 @@
+#Quelle: Miguel Grinberg (https://github.com/miguelgrinberg/microblog) Version 0.11
 """posts table
 
 Revision ID: 780739b227a7

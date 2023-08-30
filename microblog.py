@@ -1,3 +1,4 @@
+#Quelle: Miguel Grinberg (https://github.com/miguelgrinberg/microblog) Version 0.11
 from app import app, db
 from app.models import User, Post
 

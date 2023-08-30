@@ -1,3 +1,4 @@
+#Quelle: Miguel Grinberg (https://github.com/miguelgrinberg/microblog) Version 0.11
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 

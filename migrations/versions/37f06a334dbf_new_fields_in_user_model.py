@@ -1,3 +1,4 @@
+#Quelle: Miguel Grinberg (https://github.com/miguelgrinberg/microblog) Version 0.11
 """new fields in user model
 
 Revision ID: 37f06a334dbf
