@@ -240,7 +240,6 @@ def verify_password(username, password):
 
 
 class BlogPostResource(Resource):
-
     @auth.login_required
     def get(self, post_id):
         post = Post.query.get_or_404(post_id)
